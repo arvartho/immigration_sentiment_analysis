@@ -4,6 +4,8 @@ Data loading, preprocessing and feature selection. The selected features are com
 
 
 ```python
+from TweetProcessor import TweetProcessor as tp
+
 tweet_processor = tp.TweetProcessor()
 air_df = pd.read_csv('data/TwitterAirlineSentiment.csv')
 air_df.drop_duplicates(inplace=True)
@@ -125,7 +127,7 @@ plt.show()
 ```
 
 
-![](/images/output_6_0.png)
+![](images/output_6_0.png)
 
 
 Comparison between expectation and prediction
