@@ -11,6 +11,7 @@ import os
 import string
 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.decomposition import LatentDirichletAllocation as LDA
 from sklearn import preprocessing
 
 from nltk.corpus import sentiwordnet as swn
@@ -76,6 +77,7 @@ class TweetProcessor():
       doc = re.sub(r' doesnt ', r' does not ', doc).strip()
       doc = re.sub(r' didnt ', r' did not ', doc).strip()
       doc = re.sub(r' wont ', r' will not ', doc).strip()
+      doc = re.sub(r' won\'t ', r' will not ', doc).strip()
       doc = re.sub(r' havent ', r' have not ', doc).strip()
       doc = re.sub(r' hasnt ', r' has not ', doc).strip()
       doc = re.sub(r' hadnt ', r' had not ', doc).strip()
@@ -84,6 +86,7 @@ class TweetProcessor():
       doc = re.sub(r' shallnt ', r' shall not ', doc).strip()
       doc = re.sub(r' cannot ', r' can not ', doc).strip()
       doc = re.sub(r' cant ', r' can not ', doc).strip()
+      doc = re.sub(r'can\'t', r' can not ', doc).strip()
       doc = re.sub(r' couldnt ', r' could not ', doc).strip()
       doc = re.sub(r'([a-zA-Z].+)n\?t', r' \1 not ', doc).strip()
       doc = re.sub(r'([a-zA-Z].+)n\'t', r' \1 not ', doc).strip()
@@ -92,9 +95,9 @@ class TweetProcessor():
       doc = re.sub(r'([a-zA-Z].+)\'re', r' \1 are ', doc).strip()
       doc = re.sub(r'([a-zA-Z].+)\'s', r' \1 \'s ', doc).strip()          
       # capture explamation mark (!)
-      doc = re.sub(r'(!{2,})', '<EXCLAMATION>.', doc).strip()
+      # doc = re.sub(r'(!{2,})', '<EXCLAMATION>.', doc).strip()
       # capture question mark (?)
-      doc = re.sub(r'(\?{2,})', '<QUESTION>.', doc).strip()
+      # doc = re.sub(r'(\?{2,})', '<QUESTION>.', doc).strip()
       # remove numbers
       doc = re.sub(r'[0-9]+', '', doc).strip()    
       # remove links
@@ -202,7 +205,7 @@ class TweetProcessor():
                                 min_df=5, 
                                 ngram_range=(1, 3),
                                 norm='l2', 
-                                max_features=5000)
+                                max_features=2000)
       vectorizer.fit(doc)
       return vectorizer
    
@@ -240,7 +243,17 @@ class TweetProcessor():
                                   tokenizer=self.tweet_preprocessing,
                                   vocabulary=vocabulary)
       vectorizer = vectorizer.fit(doc)
-      return vectorizer      
+      return vectorizer   
+
+   def lda_features(self, doc, n_topics):
+      '''
+      LDA feature extraction, use corpus data as input
+      '''
+      vocabulary = set(' '.join(doc).split(' ')) - set(self.custom_features_score.keys())   
+      count_vectorizer = CountVectorizer(stop_words='english')
+      count_data = count_vectorizer.fit_transform(doc)
+      lda = LDA(n_components=n_topics, n_jobs=-1)
+      return lda.fit_transform(count_data)   
 
 #
 # Helper functions  
