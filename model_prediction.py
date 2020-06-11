@@ -6,6 +6,8 @@ import json
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle 
 import warnings
+from pymongo import MongoClient
+import argparse
 warnings.filterwarnings('ignore')
 from TweetProcessor import TweetProcessor as tp
 tweet_processor = tp.TweetProcessor()
@@ -62,11 +64,16 @@ def make_prediction(model_filepath, doc):
       return {'emotion': {'pred': pred, 'prob': prob[0].tolist()}}
 
 if __name__ == "__main__":
+   parser = argparse.ArgumentParser()
+   parser.add_argument("--init", nargs='?',
+                        const=True, default=False,
+                        help="Activate init mode.")
+   args = parser.parse_args()
+   init = args.init
    with open("data/TextMiningInput.json", "r") as read_file:
       tweets = json.load(read_file)
-      
-   results = []
    
+   results = []
    for tweet in tweets['tweets']:
       model_filepath, doc = "models/finalized_sentiment.model", tweet['text']
       sentimentResults = make_prediction(model_filepath, doc)
@@ -77,4 +84,9 @@ if __name__ == "__main__":
       merged_dict = sentimentResults.copy()
       merged_dict.update(emotionResults)
       results.append(merged_dict)
+   if init == True:
+      dbclient = MongoClient('MongoURI')
+      db = dbclient.test
+      db.results.insert_many(results)
+
    print(results)
