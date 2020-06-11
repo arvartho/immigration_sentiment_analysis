@@ -77,4 +77,4 @@ if __name__ == "__main__":
       merged_dict = sentimentResults.copy()
       merged_dict.update(emotionResults)
       results.append(merged_dict)
-      print(results)
+   print(results)
