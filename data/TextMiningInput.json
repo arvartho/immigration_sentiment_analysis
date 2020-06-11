@@ -1,0 +1,19 @@
+{
+	"tweets": [{
+			"username": "Dimitris Papadopoulos",
+			"screen_name": "jim93m",
+			"description": "Young and pretty",
+			"user_location": "Boston,MA",
+			"retweet_count": "250",
+			"text": "immigration stuff"
+		},
+		{
+			"username": "Dimitris Agtzidis",
+			"screen_name": "jimg4",
+			"description": "Oh my God",
+			"user_location": "Tropical Kilkis",
+			"retweet_count": "2000",
+			"text": "Vamos Mykonos"
+		}
+	]
+}

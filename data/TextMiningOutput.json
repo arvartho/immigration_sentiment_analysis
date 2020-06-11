@@ -1,0 +1,19 @@
+{
+	"tweets": [{
+			"gender": "male",
+			"age_group": "young",
+			"hate_speech": "0",
+			"sentiment": "?",
+			"emotion": "?",
+         "location": "?"
+		},
+		{
+			"gender": "male",
+			"age_group": "young",
+			"hate_speech": "1",
+			"sentiment": "",
+			"emotion": "?",
+         "location": "?"
+		}
+	]
+}

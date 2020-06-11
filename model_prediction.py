@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import pickle
 import random
-import argparse
+import json
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle 
 import warnings
@@ -56,16 +56,25 @@ def make_prediction(model_filepath, doc):
          pred = [emotions[i] for i in np.argsort(prob)[0][:2]]
    else:
       pred = result
-   return {'pred': pred, 'prob': prob[0].tolist()} 
+   if model_filepath == "models/finalized_sentiment.model":
+      return {'sentiment': {'pred': pred, 'prob': prob[0].tolist()}}
+   else:
+      return {'emotion': {'pred': pred, 'prob': prob[0].tolist()}}
 
 if __name__ == "__main__":
-   parser = argparse.ArgumentParser()
-   parser.add_argument('--model', dest = "model", help="Path for sentiment/emotion model. Models can be found under \"models\" directory",
-                    type=str)
-   parser.add_argument('--text', dest="doc", help="Text for prediction",
-                    type=str)
-   args = parser.parse_args()
+   with open("data/TextMiningInput.json", "r") as read_file:
+      tweets = json.load(read_file)
+      
+   results = []
    
-   model_filepath, doc = args.model, args.doc
-   result = make_prediction(model_filepath, doc)
-   print(result)
+   for tweet in tweets['tweets']:
+      model_filepath, doc = "models/finalized_sentiment.model", tweet['text']
+      sentimentResults = make_prediction(model_filepath, doc)
+      model_filepath, doc = "models/finalized_emotion.model", tweet['text']
+      emotionResults = make_prediction(model_filepath, doc)
+      sentimentResults = json.loads(json.dumps(sentimentResults))
+      emotionResults = json.loads(json.dumps(emotionResults))
+      merged_dict = sentimentResults.copy()
+      merged_dict.update(emotionResults)
+      results.append(merged_dict)
+      print(results)
