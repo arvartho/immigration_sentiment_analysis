@@ -65,6 +65,8 @@ class TweetProcessor():
       """
       # Handle emojis
       doc = emoji_parser(doc)
+      # lowercase
+      doc = doc.lower()
       # Handle negetion
       doc = re.sub(r' isnt ', r' is not ', doc).strip()
       doc = re.sub(r' arent ', r' are not ', doc).strip()
