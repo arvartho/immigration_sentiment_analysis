@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle 
 import warnings
 from pymongo import MongoClient
+import geograpy4
 import argparse
 warnings.filterwarnings('ignore')
 from TweetProcessor import TweetProcessor as tp
@@ -75,6 +76,12 @@ if __name__ == "__main__":
    
    results = []
    for tweet in tweets['tweets']:
+      location = geograpy4.get_place_context(tweet['user_location'],ignoreEstablishments=True)
+      finalLocation = {}
+      if len(location) > 0:
+         finalLocation['lat'] = location[0]['lat']
+         finalLocation['lon'] = location[0]['lon']
+         finalLocation['location'] = location[0]['display_name']
       model_filepath, doc = "models/finalized_sentiment.model", tweet['text']
       sentimentResults = make_prediction(model_filepath, doc)
       model_filepath, doc = "models/finalized_emotion.model", tweet['text']
@@ -83,6 +90,8 @@ if __name__ == "__main__":
       emotionResults = json.loads(json.dumps(emotionResults))
       merged_dict = sentimentResults.copy()
       merged_dict.update(emotionResults)
+      if len(location) > 0:
+         merged_dict.update(finalLocation)
       results.append(merged_dict)
    if init == True:
       dbclient = MongoClient('MongoURI')
