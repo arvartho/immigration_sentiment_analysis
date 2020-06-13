@@ -12,6 +12,10 @@ import argparse
 warnings.filterwarnings('ignore')
 from TweetProcessor import TweetProcessor as tp
 tweet_processor = tp.TweetProcessor()
+from UserModeling import UserModeling as um
+userModeling = um.UserModeling()
+import pandas as pd
+
 
 def make_prediction(model_filepath, doc):
    # parse text
@@ -75,7 +79,15 @@ if __name__ == "__main__":
       tweets = json.load(read_file)
    
    results = []
-   for tweet in tweets['tweets']:
+    
+   file_names = "UserModeling/NamesList.csv"
+   names_df = pd.read_csv(file_names)       
+   list_names_df = userModeling.split_names(names_df)   
+          
+   for tweet in tweets['tweets']:   
+      hate_speech = userModeling.predict_hate_speech(tweet['text'])
+      gender = userModeling.extract_gender(tweet['username'],tweet['description'],list_names_df)
+      age_group = userModeling.extract_age(tweet['username'],tweet['screen_name'])     
       location = geograpy4.get_place_context(tweet['user_location'],ignoreEstablishments=True)
       finalLocation = {}
       if len(location) > 0:
@@ -90,6 +102,10 @@ if __name__ == "__main__":
       emotionResults = json.loads(json.dumps(emotionResults))
       merged_dict = sentimentResults.copy()
       merged_dict.update(emotionResults)
+      
+      merged_dict.update(hate_speech)
+      merged_dict.update(gender)
+      merged_dict.update(age_group)
       if len(location) > 0:
          merged_dict.update(finalLocation)
       results.append(merged_dict)
